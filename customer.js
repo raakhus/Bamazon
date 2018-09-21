@@ -20,15 +20,32 @@ connection.connect(function (err, ) {
 
   start();
 });
-
 var catagory = []
 var totalProductInfo = [];
+var product = [];
+var productObj = [];
+var quanity = [];
+var price = [];
+var id = [];
+var department = [];
+var bought = [];
+var sales = [];
 function start() {
+  catagory = []
+  totalProductInfo = [];
+  product = [];
+  productObj = [];
+  quanity = [];
+  price = [];
+  id = [];
+  department = [];
+  bought = [];
+  sales = [];
   console.log('Welcome to BAMAZON where we put the b in amazon')
 
   connection.query('SELECT * FROM products', function (err, res) {
     if (err) throw err;
-    // console.log(res[0].id) testing respoonse
+    // console.log(res[0].id) testing response
     totalProductInfo.push(res)
     for (var i = 0; i < res.length; i++) {
       console.log("Product: " + res[i].product_name + '\n' + 'Price: ' + (res[i].price) + "\n" + "Department: " + res[i].department_name + "\n")
@@ -44,7 +61,7 @@ function askQuestions() {
   connection.query('SELECT * FROM products', function (err, res) {
     if (err) throw err;
   })
-  var deparment = catagory.reduce(function (a, b) {
+  var department = catagory.reduce(function (a, b) {
     if (a.indexOf(b) < 0) a.push(b);
     return a;
   }, []);
@@ -56,388 +73,232 @@ function askQuestions() {
       name: "choose",
       type: "list",
       message: "What Department would you like to search in? \n Look above to see a list of all products",
-      choices: deparment
+      choices: department
     })
 
     .then(function (answer) {
-      console.log(totalProductInfo.length)
       switch (answer.choose) {
         case 'home supplies':
-          homeSupplies();
+          homeSupplies(answer.choose);
           break;
         case 'jewelry':
-          jewelry();
+          jewelry(answer.choose);
           break;
         case 'daily use':
-          dailyUse();
+          dailyUse(answer.choose);
           break;
         case 'clothing':
-          clothing();
+          clothing(answer.choose);
           break;
         case 'office supplies':
-          officeSupplies();
+          officeSupplies(answer.choose);
           break;
         case 'electronics':
-          electronics();
+          electronics(answer.choose);
           break;
         case 'DIY':
-          DIY();
+          DIY(answer.choose);
           break;
       }
     })
 }
-function homeSupplies() {
-  var product = [];
-  productObj = [];
+function homeSupplies(x) {
+  getBamazonInfo(x);
+  inquirer.prompt(
+    {
+      name: "choose",
+      type: "list",
+      message: "What product would you like to buy?",
+      choices: product
+    },
+  ).then(function (answer) {
+    specificInfo(answer.choose);
+  });
+};
+function jewelry(x) {
+  getBamazonInfo(x);
+  inquirer.prompt(
+    {
+      name: "choose",
+      type: "list",
+      message: "What product would you like to buy?",
+      choices: product
+    },
+  ).then(function (answer) {
+    specificInfo(answer.choose);
+  });
+};
+function dailyUse(x) {
+  getBamazonInfo(x);
+  inquirer.prompt(
+    {
+      name: "choose",
+      type: "list",
+      message: "What product would you like to buy?",
+      choices: product
+    },
+  ).then(function (answer) {
+    specificInfo(answer.choose);
+  });
+};
+function clothing(x) {
+  getBamazonInfo(x);
+  inquirer.prompt(
+    {
+      name: "choose",
+      type: "list",
+      message: "What product would you like to buy?",
+      choices: product
+    },
+  ).then(function (answer) {
+    specificInfo(answer.choose);
+  });
+};
+function officeSupplies(x) {
+  getBamazonInfo(x);
+  inquirer.prompt(
+    {
+      name: "choose",
+      type: "list",
+      message: "What product would you like to buy?",
+      choices: product
+    },
+  ).then(function (answer) {
+    specificInfo(answer.choose);
+  });
+};
+function electronics(x) {
+  getBamazonInfo(x);
+  inquirer.prompt(
+    {
+      name: "choose",
+      type: "list",
+      message: "What product would you like to buy?",
+      choices: product
+    },
+  ).then(function (answer) {
+    specificInfo(answer.choose);
+  });
+};
+function DIY(x) {
+  getBamazonInfo(x);
+  inquirer.prompt(
+    {
+      name: "choose",
+      type: "list",
+      message: "What product would you like to buy?",
+      choices: product
+    },
+  ).then(function (answer) {
+    specificInfo(answer.choose);
+  });
+};
+function getBamazonInfo(x) {
   for (let i = 0; i < totalProductInfo[0].length; i++) {
-    if (totalProductInfo[0][i].department_name === 'home supplies') {
+    if (totalProductInfo[0][i].department_name === x) {
       product.push(totalProductInfo[0][i].product_name);
-      product.push({
+      productObj.push({
         product: totalProductInfo[0][i].product_name,
         quanity: totalProductInfo[0][i].stock_quanity,
-        price: totalProductInfo[0][i].price
+        price: totalProductInfo[0][i].price,
+        id: totalProductInfo[0][i].id,
+        department: totalProductInfo[0][i].department_name
       });
     };
   };
-
-inquirer.prompt(
-  {
-    name: "choose",
-    type: "list",
-    message: "What product would you like to buy?",
-    choices: product
-
-  }).then(function (answer) {
-    var quanity = []
-    for (let i = 0; i < productObj.length; i++) {
-      if (productObj[i] === answer.choose)
-        quanity.push(productObj[i].quanity)
-    };
-    inquirer.prompt(
-      {
-        name: "quanity",
-        type: "input",
-        message: "how many would you like to buy?",
-        validate: function (value) {
-          if (isNaN(value) === false && value > 0 && value < quanity[0]) {
-            return true;
-          }
-          console.log('\n')
-          console.log("sorry not an option")
-          return false;
-        }
-      }).then(function (answer) {
-        if (answer.choose)
-          inquirer.prompt({
-            name: "yesorno",
-            type: "list",
-            message: "your total cost is",
-            choices: product
-
-
-          })
-      })
-  }
 }
-function jewelry() {
-      var product = [];
-      for (let i = 0; i < totalProductInfo[0].length; i++) {
-        if (totalProductInfo[0][i].department_name === 'jewelry') {
-          product.push(totalProductInfo[0][i].product_name)
-        }
-      }
-      inquirer.prompt([
-        {
-          name: "choose",
-          type: "list",
-          message: "What product would you like to buy?",
-          choices: product
-
-        },
-        {
-          name: "quanity",
-          type: "input",
-          message: "how many would you like to buy?",
-          validate: function (value) {
-            if (isNaN(value) === false && value > 0) {
-              return true;
-            }
-            console.log('\n')
-            console.log("sorry not an option")
-            return false;
-          }
-        }]);
+function specificInfo(x) {
+  for (let i = 0; i < productObj.length; i++) {
+    if (productObj[i].product === x) {
+      quanity.push(productObj[i].quanity);
+      price.push(productObj[i].price);
+      product.push(productObj[i].product);
+      department.push(productObj[i].department);
+      id.push(productObj[i].id);
     }
-function dailyUse() {
-      var product = [];
-      for (let i = 0; i < totalProductInfo[0].length; i++) {
-        if (totalProductInfo[0][i].department_name === 'daily use') {
-          product.push(totalProductInfo[0][i].product_name)
-        }
-      }
-      inquirer.prompt([
-        {
-          name: "choose",
-          type: "list",
-          message: "What product would you like to buy?",
-          choices: product
-
-        },
-        {
-          name: "quanity",
-          type: "input",
-          message: "how many would you like to buy?",
-          validate: function (value) {
-            if (isNaN(value) === false && value > 0) {
-              return true;
-            }
-            console.log('\n')
-            console.log("sorry not an option")
-            return false;
-          }
-        }]);
+    if(parseInt(quanity[0]) === 0){
+      console.log("we ran out! Try again!")
+      return connection.end();
     }
-function clothing() {
-      var product = [];
-      for (let i = 0; i < totalProductInfo[0].length; i++) {
-        if (totalProductInfo[0][i].department_name === 'clothing') {
-          product.push(totalProductInfo[0][i].product_name)
+  }
+  inquirer.prompt(
+    {
+      name: "total",
+      type: "input",
+      message: "how many would you like to buy?",
+      validate: function (value) {
+        if (isNaN(value) === false && value > 0 && value <= parseInt(quanity[0])) {
+          return true;
         }
+        console.log('\n');
+        console.log("sorry not an option");
+        return false;
       }
-      inquirer.prompt([
-        {
-          name: "choose",
-          type: "list",
-          message: "What product would you like to buy?",
-          choices: product
+    }).then(function (answer) {
+      totalAmount(answer.total);
+    })
+}
+function totalAmount(x) {
+  bought.push(x)
+  var total = parseInt(x) * parseInt(price[0])
+  inquirer.prompt({
+    name: "checkout",
+    type: "list",
+    message: "your Total is $" + total + " proceed with purchase?",
+    choices: ["Yes", "No"]
+  }).then(function(answer){
+    
+yesOrNo(answer.checkout);
+  })
+}
+function yesOrNo (x){
+  
+  if (x === "No") {
+  console.log("Already got your info you are the owner of "+bought[0]+" "+product[0])
+}
+console.log("You are the owner of "+bought[0]+" "+product[0])
+  inquirer.prompt({
+    name: "shopping",
+    type: "list",
+    message: "Conintue Shopping?",
+    choices: ["Yes", "No"]
+  }).then(function(answer){
+    restartAndEnd(answer.shopping);
+  })
 
-        },
-        {
-          name: "quanity",
-          type: "input",
-          message: "how many would you like to buy?",
-          validate: function (value) {
-            if (isNaN(value) === false && value > 0) {
-              return true;
-            }
-            console.log('\n')
-            console.log("sorry not an option")
-            return false;
-          }
-        }]);
-    }
-function officeSupplies() {
-      var product = [];
-      for (let i = 0; i < totalProductInfo[0].length; i++) {
-        if (totalProductInfo[0][i].department_name === 'office supplies') {
-          product.push(totalProductInfo[0][i].product_name)
-        }
-      }
-      inquirer.prompt([
-        {
-          name: "choose",
-          type: "list",
-          message: "What product would you like to buy?",
-          choices: product
+}
+function restartAndEnd (x){
+  var totalStock = parseInt(quanity[0]) - parseInt(bought[0])
+  if (x === "Yes") {
+    console.log('need to restart it crashes')
+    connection.query(
+      "UPDATE products SET ? WHERE ?",
+      [{
+        stock_quanity: totalStock
+      },{
+        product_name: product[0],
+      }],
+      function(err) {
+        if (err) throw err;
+console.log('too bad it crashes')
+console.log('table updated')
+return connection.end();
+  }
+    );
+  }
+    connection.query(
+      "UPDATE products SET ? WHERE ?",
+      [{
+        stock_quanity: totalStock
+      },{
+        product_name: product[0],
+      }],
+      function(err) {
+        if (err) throw err;
+        console.log("table updated");
+console.log('See you soon!')
+return connection.end();
+  })
+}
 
-        },
-        {
-          name: "quanity",
-          type: "input",
-          message: "how many would you like to buy?",
-          validate: function (value) {
-            if (isNaN(value) === false && value > 0) {
-              return true;
-            }
-            console.log('\n')
-            console.log("sorry not an option")
-            return false;
-          }
-        }]);
-    }
-function electronics() {
-      var product = [];
-      for (let i = 0; i < totalProductInfo[0].length; i++) {
-        if (totalProductInfo[0][i].department_name === 'electronics') {
-          product.push(totalProductInfo[0][i].product_name)
-        }
-      }
-      inquirer.prompt([
-        {
-          name: "choose",
-          type: "list",
-          message: "What product would you like to buy?",
-          choices: product
-
-        },
-        {
-          name: "quanity",
-          type: "input",
-          message: "how many would you like to buy?",
-          validate: function (value) {
-            if (isNaN(value) === false && value > 0) {
-              return true;
-            }
-            console.log('\n')
-            console.log("sorry not an option")
-            return false;
-          }
-        }]);
-    }
-function DIY() {
-      var product = [];
-      for (let i = 0; i < totalProductInfo[0].length; i++) {
-        if (totalProductInfo[0][i].department_name === 'DIY') {
-          product.push(totalProductInfo[0][i].product_name)
-        }
-      }
-      inquirer.prompt([
-        {
-          name: "choose",
-          type: "list",
-          message: "What product would you like to buy?",
-          choices: product
-
-        },
-        {
-          name: "quanity",
-          type: "input",
-          message: "how many would you like to buy?",
-          validate: function (value) {
-            if (isNaN(value) === false && value > 0) {
-              return true;
-            }
-            console.log('\n')
-            console.log("sorry not an option")
-            return false;
-          }
-        }]);
-    }
-
-    // )}
-      // console.log(answer);
-      // console.log(totalProductInfo)})}
-    //   connection.query('SELECT * FROM products', function (err, res) {
-    //     if (err) throw err;
-    //     // console.log(res[0].id) testing respoonse
-    //     for (var i = 0; i < res.length; i++) {
-    //       console.log("Product: " + res[i].product_name + '\n' + 'Price: ' + (res[i].price) + "\n")
-    //       catagory.push(res[i].department_name)
-    //       product.push(res[i].product_name)
-    // switch (answer){
-    //   case answer
-    // }
-
-
-//     });
-// }
-
-// // function to handle posting new items up for auction
-// function postAuction() {
-//   // prompt for info about the item being put up for auction
-//   inquirer
-//     .prompt([
-//       {
-//         name: "item",
-//         type: "input",
-//         message: "What is the item you would like to submit?"
-//       },
-//       {
-//         name: "category",
-//         type: "input",
-//         message: "What category would you like to place your auction in?"
-//       },
-//       {
-//         name: "startingBid",
-//         type: "input",
-//         message: "What would you like your starting bid to be?",
-//         validate: function(value) {
-//           if (isNaN(value) === false) {
-//             return true;
-//           }
-//           return false;
-//         }
-//       }
-//     ])
-//     .then(function(answer) {
-//       // when finished prompting, insert a new item into the db with that info
-//       connection.query(
-//         "INSERT INTO auctions SET ?",
-//         {
-//           item_name: answer.item,
-//           category: answer.category,
-//           starting_bid: answer.startingBid,
-//           highest_bid: answer.startingBid
-//         },
-//         function(err) {
-//           if (err) throw err;
-//           console.log("Your auction was created successfully!");
-//           // re-prompt the user for if they want to bid or post
-//           start();
-//         }
-//       );
-//     });
-// }
-
-// function bidAuction() {
-//   // query the database for all items being auctioned
-//   connection.query("SELECT * FROM auctions", function(err, results) {
-//     if (err) throw err;
-//     // once you have the items, prompt the user for which they'd like to bid on
-//     inquirer
-//       .prompt([
-//         {
-//           name: "choice",
-//           type: "rawlist",
-//           choices: function() {
-//             var choiceArray = [];
-//             for (var i = 0; i < results.length; i++) {
-//               choiceArray.push(results[i].item_name);
-//             }
-//             return choiceArray;
-//           },
-//           message: "What auction would you like to place a bid in?"
-//         },
-//         {
-//           name: "bid",
-//           type: "input",
-//           message: "How much would you like to bid?"
-//         }
-//       ])
-//       .then(function(answer) {
-//         // get the information of the chosen item
-//         var chosenItem;
-//         for (var i = 0; i < results.length; i++) {
-//           if (results[i].item_name === answer.choice) {
-//             chosenItem = results[i];
-//           }
-//         }
-
-//         // determine if bid was high enough
-//         if (chosenItem.highest_bid < parseInt(answer.bid)) {
-//           // bid was high enough, so update db, let the user know, and start over
-//           connection.query(
-//             "UPDATE auctions SET ? WHERE ?",
-//             [
-//               {
-//                 highest_bid: answer.bid
-//               },
-//               {
-//                 id: chosenItem.id
-//               }
-//             ],
-//             function(error) {
-//               if (error) throw err;
-//               console.log("Bid placed successfully!");
-//               start();
-//             }
-//           );
-//         }
-//         else {
-//           // bid wasn't high enough, so apologize and start over
-//           console.log("Your bid was too low. Try again...");
-//           start();
-//         }
-//       });
-//   });
-// }
+   
