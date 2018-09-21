@@ -1,5 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+var cTable = require("console.table")
 var customerCash = ""
 
 var connection = mysql.createConnection({
@@ -30,7 +31,9 @@ var id = [];
 var department = [];
 var bought = [];
 var sales = [];
+var product1 = [];
 function start() {
+  // reset our variables
   catagory = []
   totalProductInfo = [];
   product = [];
@@ -41,14 +44,16 @@ function start() {
   department = [];
   bought = [];
   sales = [];
+  product1 = [];
+  console.log(catagory, totalProductInfo, product, productObj, quanity, price, id, department, bought, sales, product1)
   console.log('Welcome to BAMAZON where we put the b in amazon')
 
   connection.query('SELECT * FROM products', function (err, res) {
     if (err) throw err;
     // console.log(res[0].id) testing response
     totalProductInfo.push(res)
+    console.table(res)
     for (var i = 0; i < res.length; i++) {
-      console.log("Product: " + res[i].product_name + '\n' + 'Price: ' + (res[i].price) + "\n" + "Department: " + res[i].department_name + "\n")
       catagory.push(res[i].department_name)
 
 
@@ -58,9 +63,6 @@ function start() {
   });
 }
 function askQuestions() {
-  connection.query('SELECT * FROM products', function (err, res) {
-    if (err) throw err;
-  })
   var department = catagory.reduce(function (a, b) {
     if (a.indexOf(b) < 0) a.push(b);
     return a;
@@ -196,7 +198,7 @@ function DIY(x) {
 function getBamazonInfo(x) {
   for (let i = 0; i < totalProductInfo[0].length; i++) {
     if (totalProductInfo[0][i].department_name === x) {
-      product.push(totalProductInfo[0][i].product_name);
+      product.push(totalProductInfo[0][i].product_name)
       productObj.push({
         product: totalProductInfo[0][i].product_name,
         quanity: totalProductInfo[0][i].stock_quanity,
@@ -212,13 +214,13 @@ function specificInfo(x) {
     if (productObj[i].product === x) {
       quanity.push(productObj[i].quanity);
       price.push(productObj[i].price);
-      product.push(productObj[i].product);
+      product1.push(productObj[i].product);
       department.push(productObj[i].department);
       id.push(productObj[i].id);
     }
-    if(parseInt(quanity[0]) === 0){
+    if (parseInt(quanity[0]) === 0) {
       console.log("we ran out! Try again!")
-      return connection.end();
+      start();
     }
   }
   inquirer.prompt(
@@ -246,59 +248,60 @@ function totalAmount(x) {
     type: "list",
     message: "your Total is $" + total + " proceed with purchase?",
     choices: ["Yes", "No"]
-  }).then(function(answer){
-    
-yesOrNo(answer.checkout);
+  }).then(function (answer) {
+
+    yesOrNo(answer.checkout);
   })
 }
-function yesOrNo (x){
-  
+function yesOrNo(x) {
+
   if (x === "No") {
-  console.log("Already got your info you are the owner of "+bought[0]+" "+product[0])
-}
-console.log("You are the owner of "+bought[0]+" "+product[0])
+    console.log("Ok, back to the start")
+    start();
+  }
+  console.log("You are the owner of " + bought[0] + " " + product1[0])
   inquirer.prompt({
     name: "shopping",
     type: "list",
     message: "Conintue Shopping?",
     choices: ["Yes", "No"]
-  }).then(function(answer){
+  }).then(function (answer) {
     restartAndEnd(answer.shopping);
   })
 
 }
-function restartAndEnd (x){
+function restartAndEnd(x) {
   var totalStock = parseInt(quanity[0]) - parseInt(bought[0])
   if (x === "Yes") {
-    console.log('need to restart it crashes')
     connection.query(
       "UPDATE products SET ? WHERE ?",
       [{
         stock_quanity: totalStock
-      },{
-        product_name: product[0],
+      }, {
+        product_name: product1[0]
       }],
-      function(err) {
+      function (err) {
         if (err) throw err;
-console.log('too bad it crashes')
-console.log('table updated')
-return connection.end();
-  }
+        console.log('table updated')
+        start();
+      }
     );
   }
-    connection.query(
-      "UPDATE products SET ? WHERE ?",
-      [{
-        stock_quanity: totalStock
-      },{
-        product_name: product[0],
-      }],
-      function(err) {
-        if (err) throw err;
-        console.log("table updated");
-console.log('See you soon!')
-return connection.end();
-  })
+  if (x === "No") {
+  connection.query(
+    "UPDATE products SET ? WHERE ?",
+    [{
+      stock_quanity: totalStock
+    }, {
+      product_name: product1[0]
+    }],
+    function (err) {
+      if (err) throw err;
+      console.log("table updated");
+      console.log('See you soon!')
+      return connection.end();
+    })
+}
 }
 
-   
+
